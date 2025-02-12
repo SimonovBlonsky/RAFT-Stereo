@@ -17,6 +17,8 @@ DEVICE = 'cuda'
 
 def load_image(imfile):
     img = np.array(Image.open(imfile)).astype(np.uint8)
+    # breakpoint()
+    img = np.stack([img]*3, axis=-1)
     img = torch.from_numpy(img).permute(2, 0, 1).float()
     return img[None].to(DEVICE)
 
@@ -46,7 +48,11 @@ def demo(args):
             _, flow_up = model(image1, image2, iters=args.valid_iters, test_mode=True)
             flow_up = padder.unpad(flow_up).squeeze()
 
-            file_stem = imfile1.split('/')[-2]
+            # breakpoint()
+            # file_stem = imfile1.split('/')[-2]
+            file_stem = imfile1.split('/')[-1]
+            file_stem = file_stem.split('.')[0]
+            
             if args.save_numpy:
                 np.save(output_directory / f"{file_stem}.npy", flow_up.cpu().numpy().squeeze())
             plt.imsave(output_directory / f"{file_stem}.png", -flow_up.cpu().numpy().squeeze(), cmap='jet')
